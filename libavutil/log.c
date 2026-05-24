@@ -46,7 +46,15 @@
 #include "time.h"
 #include "time_internal.h"
 
+#if CONFIG_CALADAN
+static AVMutex mutex;
+static void __attribute__((constructor)) ff_init_av_log_mutex(void)
+{
+    ff_mutex_init(&mutex, NULL);
+}
+#else
 static AVMutex mutex = AV_MUTEX_INITIALIZER;
+#endif
 
 #define LINE_SZ 1024
 

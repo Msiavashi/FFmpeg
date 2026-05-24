@@ -2216,6 +2216,7 @@ DOCUMENT_LIST="
 "
 
 FEATURE_LIST="
+    caladan
     ftrapv
     gray
     hardcoded_tables
@@ -4769,6 +4770,9 @@ for opt do
         ;;
         --libfuzzer=*)
             libfuzzer_path="$optval"
+        ;;
+        --caladan-path=*)
+            caladan_path="$optval"
         ;;
         *)
             optname="${opt%%=*}"
@@ -7925,6 +7929,26 @@ elif enabled iconv; then
 fi
 
 enabled debug && add_allcflags -g"$debuglevel" && add_asflags -g"$debuglevel"
+
+if enabled caladan; then
+    test -n "$caladan_path" || die "--enable-caladan requires --caladan-path=PATH"
+    test -f "$caladan_path/shim/libshim.a" || die "Caladan libshim.a not found at $caladan_path/shim/"
+    test -f "$caladan_path/libruntime.a" || die "Caladan libruntime.a not found at $caladan_path/"
+    add_cflags -mxsavec -mxsave -mfsgsbase
+    add_cppflags -D_GNU_SOURCE
+    add_ldflags -T "$caladan_path/base/base.ld"
+    add_ldexeflags -Wl,--wrap=main
+    # add_extralibs prepends, so reverse the desired link order
+    # desired order on link line: libshim libruntime libnet libbase -lnuma -lpthread -ldl
+    # mem.o is already inside libshim.a, don't list it separately
+    add_extralibs -lnuma -lpthread -ldl
+    add_extralibs "$caladan_path/libbase.a"
+    add_extralibs "$caladan_path/libnet.a"
+    add_extralibs "$caladan_path/libruntime.a"
+    add_extralibs "$caladan_path/shim/libshim.a"
+    add_compat caladan/caladan_main.o
+    add_compat caladan/caladan_once.o
+fi
 
 for lang in c cxx objc; do
     test_${lang}flags -Werror=unused-command-line-argument &&

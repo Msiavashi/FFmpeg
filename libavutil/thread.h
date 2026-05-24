@@ -174,10 +174,17 @@ static inline int strict_pthread_once(pthread_once_t *once_control, void (*init_
 #define ff_cond_wait      pthread_cond_wait
 #define ff_cond_timedwait pthread_cond_timedwait
 
+#if CONFIG_CALADAN
+#include "compat/caladan/caladan_shim.h"
+#define AVOnce ff_caladan_once_t
+#define AV_ONCE_INIT FF_CALADAN_ONCE_INIT
+#define ff_thread_once(control, routine) ff_caladan_once(control, routine)
+#else
 #define AVOnce pthread_once_t
 #define AV_ONCE_INIT PTHREAD_ONCE_INIT
 
 #define ff_thread_once(control, routine) pthread_once(control, routine)
+#endif
 
 #else
 

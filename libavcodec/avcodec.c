@@ -97,7 +97,15 @@ int avcodec_default_execute2(AVCodecContext *c, int (*func)(AVCodecContext *c2, 
     return 0;
 }
 
+#if CONFIG_CALADAN
+static AVMutex codec_mutex;
+static void __attribute__((constructor)) ff_init_codec_mutex(void)
+{
+    ff_mutex_init(&codec_mutex, NULL);
+}
+#else
 static AVMutex codec_mutex = AV_MUTEX_INITIALIZER;
+#endif
 
 static void lock_avcodec(const FFCodec *codec)
 {

@@ -119,9 +119,18 @@ static void init_slice_c(int8_t out[64][64], uint8_t h, uint8_t v)
     }
 }
 
+#if CONFIG_CALADAN
+static AVMutex h274_init_slice_mutex;
+static void __attribute__((constructor)) ff_init_h274_slice_mutex(void)
+{
+    ff_mutex_init(&h274_init_slice_mutex, NULL);
+}
+#else
+static AVMutex h274_init_slice_mutex = AV_MUTEX_INITIALIZER;
+#endif
+
 static void init_slice(uint8_t h, uint8_t v)
 {
-    static AVMutex mutex = AV_MUTEX_INITIALIZER;
     unsigned bitpos = h * 13 + v;
     unsigned res = atomic_load_explicit(&film_grain_db.residency[bitpos / 32],
                                         memory_order_acquire);
@@ -129,14 +138,14 @@ static void init_slice(uint8_t h, uint8_t v)
     if (res & (1U << (bitpos & 31)))
         return;
 
-    ff_mutex_lock(&mutex);
+    ff_mutex_lock(&h274_init_slice_mutex);
     res = atomic_load_explicit(&film_grain_db.residency[bitpos / 32], memory_order_relaxed);
     if (!(res & (1U << (bitpos & 31)))) {
         init_slice_c(film_grain_db.db[h][v], h, v);
         atomic_store_explicit(&film_grain_db.residency[bitpos / 32],
                               res | (1U << (bitpos & 31)), memory_order_release);
     }
-    ff_mutex_unlock(&mutex);
+    ff_mutex_unlock(&h274_init_slice_mutex);
 }
 
 // Computes the average of an 8x8 block

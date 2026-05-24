@@ -58,7 +58,15 @@ typedef struct ResourceManagerContext {
     AVDictionary *resource_dic;
 } ResourceManagerContext;
 
+#if CONFIG_CALADAN
+static AVMutex mutex;
+static void __attribute__((constructor)) ff_init_resman_mutex(void)
+{
+    ff_mutex_init(&mutex, NULL);
+}
+#else
 static AVMutex mutex = AV_MUTEX_INITIALIZER;
+#endif
 
 static ResourceManagerContext resman_ctx = { .class = &resman_class };
 
