@@ -127,7 +127,7 @@ def run_case(method, x, N, frozen, attn=False):
         series["meta_changes"].append(meta_scale_changes(meta0, m_t))
         series["code_eq_q0"].append(bool(code_eq))
         series["meta_eq_m0"].append(bool(meta_equal(meta0, m_t)))
-        if attn and x.dim() == 4:
+        if attn and x.dim() == 4 and (t % 25 == 0 or t == 1 or t == N):
             series["attn"].append(attn_out_drift(x0, x0, xh_t.reshape(x.shape), xh_t.reshape(x.shape)))
         q_prev, m_prev = q_t, m_t
 
@@ -242,6 +242,10 @@ if __name__ == "__main__":
                                   "behavior identical to smaller shapes (verified)."}
                     continue
                 ncase = 200 if big else N
+                # k-means VQ recomputes a full codebook every cycle (expensive);
+                # cap at 300 cycles (>100 required) to keep CPU runtime tractable.
+                if mname in VQ_METHODS:
+                    ncase = min(ncase, 300)
                 x = make_tensor(dist, shape, seed=1)
                 for frozen in (True, False):
                     key = f"{mname}|{dist}|{sname}|{'frozen' if frozen else 'recomputed'}"
