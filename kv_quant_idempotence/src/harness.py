@@ -15,6 +15,9 @@ import quantizers as Qz
 
 torch.manual_seed(0)
 torch.use_deterministic_algorithms(True, warn_only=True)
+# On small KV tensors the default intra-op thread pool thrashes (huge per-op
+# overhead); 2 threads is ~20x faster here and does not affect numerics.
+torch.set_num_threads(2)
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "results")
 os.makedirs(OUT, exist_ok=True)

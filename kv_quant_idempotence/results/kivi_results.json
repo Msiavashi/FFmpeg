@@ -1,0 +1,98 @@
+{
+ "KIVI-int2 normal/frozen": {
+  "mode": "frozen",
+  "classification": "PASS-WITH-FROZEN-METADATA",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int2 normal/recomp": {
+  "mode": "recomputed",
+  "classification": "PASS",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int2 outlier/frozen": {
+  "mode": "frozen",
+  "classification": "PASS-WITH-FROZEN-METADATA",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int2 outlier/recomp": {
+  "mode": "recomputed",
+  "classification": "PASS",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int2 heavy/frozen": {
+  "mode": "frozen",
+  "classification": "PASS-WITH-FROZEN-METADATA",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int2 heavy/recomp": {
+  "mode": "recomputed",
+  "classification": "PASS",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int4 normal/frozen": {
+  "mode": "frozen",
+  "classification": "PASS-WITH-FROZEN-METADATA",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int4 normal/recomp": {
+  "mode": "recomputed",
+  "classification": "PASS",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int4 outlier/frozen": {
+  "mode": "frozen",
+  "classification": "PASS-WITH-FROZEN-METADATA",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int4 outlier/recomp": {
+  "mode": "recomputed",
+  "classification": "NUMERICALLY-STABLE",
+  "final_linf": 2.86102294921875e-06,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 1.52587890625e-05
+ },
+ "KIVI-int4 heavy/frozen": {
+  "mode": "frozen",
+  "classification": "PASS-WITH-FROZEN-METADATA",
+  "final_linf": 0.0,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 0.0
+ },
+ "KIVI-int4 heavy/recomp": {
+  "mode": "recomputed",
+  "classification": "NUMERICALLY-STABLE",
+  "final_linf": 7.62939453125e-06,
+  "final_code_change_pct": 0.0,
+  "deterministic": true,
+  "attn": 9.5367431640625e-06
+ }
+}
