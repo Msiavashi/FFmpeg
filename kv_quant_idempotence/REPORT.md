@@ -59,8 +59,8 @@ Both modes are tested for every method.
 | `mxfp4_b32` (block-scaled FP4) | yes | bitwise idempotent | bitwise fixed point | 0 | 7.5× | **PASS** |
 | `vq_d4_k256` (VQ, refit) | yes (seeded) | bitwise idempotent | **diverges** | 36.3 | 10.7× | frozen: PASS / recomp: **FAIL-DRIFT** |
 | `pq_d2_k16` (PQ, refit) | yes (seeded) | bitwise idempotent | **diverges** | 5.0 | 15.8× | frozen: PASS / recomp: **FAIL-DRIFT** |
-| **KIVI** int2 (real repo algo) | yes | bitwise idempotent | bitwise fixed point | 0 | up to 16× | **PASS** |
-| **KIVI** int4 (real repo algo) | yes | bitwise idempotent | NUM-STABLE on heavy/outlier | 7.6e-06 | 8× | **PASS / NUMERICALLY-STABLE** |
+| **KIVI** int2 (real repo algo) | yes | bitwise idempotent | bitwise fixed point | 0 | up to 16× | **PASS-WITH-FROZEN** (recomp int2: exact) |
+| **KIVI** int4 (real repo algo) | yes | bitwise idempotent | codes exact, scale ±1 ULP → ≤7.6e-6 constant offset | 7.6e-06 | 8× | **PASS-WITH-FROZEN / recomp NUMERICALLY-STABLE — *not* unconditionally bitwise** |
 
 Full per-mode counts in `results/summary_table.md`. Every method was
 **deterministic** (identical input+config ⇒ bitwise-identical codes+metadata on
@@ -96,12 +96,22 @@ KIVI's quantization arithmetic (`quant_and_pack_kcache`/`unpack_and_dequant_kcac
 group-wise asymmetric min/max INT) is **pure PyTorch**; only bit-packing + a
 minmax helper are Triton/CUDA. Tested verbatim via `src/kivi_adapter.py`:
 
-* **Frozen:** bitwise idempotent, 0 drift, 0 attention-output drift, all bits/cfg.
-* **Recomputed:** int2 is an exact fixed point (PASS); int4 on heavy/outlier
-  tensors shows the same ≤ 7.6e-06 micro-stability as §4.2 (it stores float `mn`,
-  not a re-snapped zero-point). Attention-output drift ≤ 1.5e-05.
-  ⇒ KIVI is **safe for repeated spill/reload**; metadata need not be preserved
-  bitwise, though preserving it gives exact idempotence.
+**KIVI is bitwise-idempotent ONLY with frozen metadata — not unconditionally.**
+
+* **Frozen:** fully bitwise idempotent — codes, metadata, and reconstruction
+  identical for all t. 0 drift, 0 attention-output drift, all bits/cfg.
+* **Recomputed:** the *quantized codes* are bitwise-identical to `q0` for all t
+  in **every** tested case (verified to 2000 cycles, `code-change = 0`). But
+  end-to-end bitwise idempotence does **not** hold for int4 on heavy/outlier
+  tensors: recomputing min/max from the reconstructed grid snaps exactly **one**
+  per-channel `scale` to a neighbouring float at `t=1`, producing a *constant*
+  ≤ 7.6e-06 reconstruction offset (attention drift ≤ 1.5e-05). Crucially this is
+  a **one-step settle to a stable fixed point — `max_linf == final_linf`, no
+  accumulation over 2000 cycles** — because KIVI stores a float `mn`/`scale`
+  rather than a re-snapped zero-point. int2 / normal-dist recompute exactly.
+  ⇒ KIVI is **safe for repeated spill/reload (bounded, non-drifting)**, but is
+  *exactly* bitwise-idempotent only if the metadata is preserved (frozen). Do
+  not claim unconditional bitwise idempotence for the recomputed int4 path.
 
 ### 4.4 Vector / Product quantization with **refit** codebook → FAIL
 `vq_d4_k256`, `pq_d2_k16`:
